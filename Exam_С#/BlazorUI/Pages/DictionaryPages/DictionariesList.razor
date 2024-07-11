@@ -53,10 +53,24 @@ else
     </table>
 }
 
+@if (isAddingNewDictionary)
+{
+    <div class="mb-3 d-flex justify-content-center gap-2 align-items-center">
+        <input @bind="newDictionary.Type" class="form-control" placeholder="Тип нового словника" />
+        <button class="btn btn-success" @onclick="SaveNewDictionary">Зберегти</button>
+        <button class="btn btn-secondary" @onclick="CancelAdd">Скасувати</button>
+    </div>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="ShowAddNewDictionary">Додати</button>
+}
+
 @code {
     private List<MyDictionary> Dictionaries = new List<MyDictionary>();
     private MyDictionary newDictionary = new MyDictionary();
     private MyDictionary editDictionary;
+    private bool isAddingNewDictionary = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,19 +82,31 @@ else
         Dictionaries = await DictionaryService.GetAllAsync();
     }
 
-    private async Task AddDictionary()
+    private void ShowAddNewDictionary()
+    {
+        isAddingNewDictionary = true;
+    }
+
+    private async Task SaveNewDictionary()
     {
         await DictionaryService.AddAsync(newDictionary);
         newDictionary = new MyDictionary();
+        isAddingNewDictionary = false;
         await LoadDictionaries();
     }
 
-    private void EditDictionary(MyDictionary MyDictionary)
+    private void CancelAdd()
+    {
+        newDictionary = new MyDictionary();
+        isAddingNewDictionary = false;
+    }
+
+    private void EditDictionary(MyDictionary myDictionary)
     {
         editDictionary = new MyDictionary
             {
-                Id = MyDictionary.Id,
-                Type = MyDictionary.Type
+                Id = myDictionary.Id,
+                Type = myDictionary.Type
             };
     }
 
@@ -99,12 +125,12 @@ else
     private async Task Delete(int id)
     {
         await DictionaryService.DeleteAsync(id);
-        Dictionaries = await DictionaryService.GetAllAsync();
+        await LoadDictionaries();
     }
 
     private async Task ConfirmDelete(int id)
     {
-        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { "Are you sure you want to delete this facility?" });
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { "Ви впевнені, що хочете видалити цей словник?" });
         if (confirmed)
         {
             await Delete(id);

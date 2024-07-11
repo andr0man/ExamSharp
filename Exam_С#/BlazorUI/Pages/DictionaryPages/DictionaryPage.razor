@@ -1,0 +1,76 @@
+﻿@page "/dictionary/{Id:int}"
+<div class="d-flex justify-content-between">
+    <h3>@(Dictionary?.Type ?? "Loading...") словник</h3>
+    <a href="@($"dictionary/{Dictionary?.Id}/word-add")" class="btn btn-primary">Додати слово</a>
+</div>
+
+
+
+@if (Dictionary == null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (Dictionary?.Words?.Count == 0)
+{
+    <span class="fs-5 text-body-secondary">Слів ще немає</span>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Слово</th>
+                <th>Переклади</th>
+                <th>Дії</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var W in Dictionary.Words)
+            {
+                <tr>
+                    <td>@W.Id</td>
+                    <td>@W.Value</td>
+                    <td>@string.Join(", ", W.Translations.ToList().Select(x => x.Value))</td>
+                    <td>
+                        <button class="btn btn-primary">Редагувати</button>
+                        <button class="btn btn-danger">Видалити</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private MyDictionary Dictionary;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDictionaries();
+    }
+
+    private async Task LoadDictionaries()
+    {
+        Dictionary = await DictionaryService.GetById(Id);
+
+        if (Dictionary != null)
+        {
+            var wordsList = Dictionary.Words.ToList();
+
+            for (int i = 0; i < wordsList.Count; i++)
+            {
+                wordsList[i] = await WordHttpService.GetById(wordsList[i].Id);
+            }
+
+            Dictionary.Words = wordsList;
+        }
+    }
+}
