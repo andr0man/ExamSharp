@@ -21,13 +21,13 @@ namespace UI
 
             services.AddScoped(sd => new HttpClient { BaseAddress = new Uri("https://localhost:7083/") });
 
-            //services.AddScoped<DictionaryHttpService>(sp =>
+            //services.AddScoped<DictionaryService>(sp =>
             //{
             //    var httpClient = sp.GetRequiredService<HttpClient>();
-            //    return new DictionaryHttpService(httpClient);
+            //    return new DictionaryService(httpClient);
             //});
 
-            services.AddTransient<DictionaryHttpService>();
+            services.AddTransient<DictionaryService>();
 
             services.AddScoped<Form1>();
 

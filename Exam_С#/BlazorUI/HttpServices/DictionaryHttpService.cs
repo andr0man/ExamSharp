@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Core.Entities;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
-using Core.Entities;
 
-namespace UI.HttpServices
+namespace BlazorUI.HttpServices
 {
     public class DictionaryService
     {

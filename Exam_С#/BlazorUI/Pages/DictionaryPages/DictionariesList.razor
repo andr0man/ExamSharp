@@ -1,0 +1,113 @@
+﻿@page "/dictionary"
+
+<h3>DictionariesList</h3>
+
+@if (Dictionaries.Count == 0)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Тип</th>
+                <th>Дії</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var D in Dictionaries)
+            {
+                <tr>
+                    <td>@D.Id</td>
+                    <td>
+                        @if (editDictionary?.Id == D.Id)
+                        {
+                            <input @bind="editDictionary.Type" class="form-control" />
+                        }
+                        else
+                        {
+                            <a href="@($"dictionary/{D.Id}")">@D.Type</a>
+                        }
+                    </td>
+                    <td>
+                        @if (editDictionary?.Id == D.Id)
+                        {
+                            <button class="btn btn-success" @onclick="UpdateDictionary">Зберегти</button>
+                            <button class="btn btn-secondary" @onclick="CancelEdit">Скасувати</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="() => EditDictionary(D)">Редагувати</button>
+                            <button class="btn btn-danger" @onclick="() => ConfirmDelete(D.Id)">Видалити</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<MyDictionary> Dictionaries = new List<MyDictionary>();
+    private MyDictionary newDictionary = new MyDictionary();
+    private MyDictionary editDictionary;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDictionaries();
+    }
+
+    private async Task LoadDictionaries()
+    {
+        Dictionaries = await DictionaryService.GetAllAsync();
+    }
+
+    private async Task AddDictionary()
+    {
+        await DictionaryService.AddAsync(newDictionary);
+        newDictionary = new MyDictionary();
+        await LoadDictionaries();
+    }
+
+    private void EditDictionary(MyDictionary MyDictionary)
+    {
+        editDictionary = new MyDictionary
+            {
+                Id = MyDictionary.Id,
+                Type = MyDictionary.Type
+            };
+    }
+
+    private async Task UpdateDictionary()
+    {
+        await DictionaryService.UpdateAsync(editDictionary);
+        editDictionary = null;
+        await LoadDictionaries();
+    }
+
+    private void CancelEdit()
+    {
+        editDictionary = null;
+    }
+
+    private async Task Delete(int id)
+    {
+        await DictionaryService.DeleteAsync(id);
+        Dictionaries = await DictionaryService.GetAllAsync();
+    }
+
+    private async Task ConfirmDelete(int id)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { "Are you sure you want to delete this facility?" });
+        if (confirmed)
+        {
+            await Delete(id);
+        }
+    }
+}

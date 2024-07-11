@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerAPI", "ServerAPI\Serv
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{0ED0E1F2-DEB5-4926-B5D4-D568DD033395}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI", "UI\UI.csproj", "{5B66F893-1F71-4732-861B-C233B6F2B8AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UI", "UI\UI.csproj", "{5B66F893-1F71-4732-861B-C233B6F2B8AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Repositories\Repositories.csproj", "{DA7B0E79-D30F-4CCC-B10F-2BC2DB5B7CB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repositories", "Repositories\Repositories.csproj", "{DA7B0E79-D30F-4CCC-B10F-2BC2DB5B7CB0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorUI", "BlazorUI\BlazorUI.csproj", "{D72FB166-73AB-4857-AEB4-875CF2E88FEE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{DA7B0E79-D30F-4CCC-B10F-2BC2DB5B7CB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA7B0E79-D30F-4CCC-B10F-2BC2DB5B7CB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA7B0E79-D30F-4CCC-B10F-2BC2DB5B7CB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D72FB166-73AB-4857-AEB4-875CF2E88FEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D72FB166-73AB-4857-AEB4-875CF2E88FEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D72FB166-73AB-4857-AEB4-875CF2E88FEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D72FB166-73AB-4857-AEB4-875CF2E88FEE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

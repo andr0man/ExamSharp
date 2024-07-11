@@ -51,7 +51,7 @@ namespace ServerAPI
             }
 
             app.UseHttpsRedirection();
-
+            app.UseCors();
             app.UseAuthorization();
 
 

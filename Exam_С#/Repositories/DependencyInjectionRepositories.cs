@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Repositories.Common;
 using Repositories.Dictionaries;
+using Repositories.Translations;
+using Repositories.Words;
 
 namespace Repositories
 {
@@ -10,6 +12,8 @@ namespace Repositories
         {
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IDictionaryRep, DictionaryRep>();
+            services.AddScoped<IWordRep, WordRep>();
+            services.AddScoped<ITranslationRep, TranslationRep>();
         }
     }
 }
