@@ -1,10 +1,8 @@
 ﻿@page "/dictionary/{Id:int}"
 <div class="d-flex justify-content-between">
     <h3>@(Dictionary?.Type ?? "Loading...") словник</h3>
-    <a href="@($"dictionary/{Dictionary?.Id}/word-add")" class="btn btn-primary">Додати слово</a>
+    <a href="@($"dictionary/{Dictionary?.Id}/word-add")" class="btn btn-success">Додати слово</a>
 </div>
-
-
 
 @if (Dictionary == null)
 {
@@ -14,12 +12,14 @@
         </div>
     </div>
 }
-else if (Dictionary?.Words?.Count == 0)
+else if (Dictionary?.Words == null || Dictionary.Words.Count == 0)
 {
     <span class="fs-5 text-body-secondary">Слів ще немає</span>
 }
 else
 {
+    <SearchBox Items="Dictionary.Words.ToList()" OnSearch="UpdateFilteredWords"></SearchBox>
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -30,15 +30,15 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var W in Dictionary.Words)
+            @foreach (var W in filteredWords)
             {
                 <tr>
                     <td>@W.Id</td>
                     <td>@W.Value</td>
-                    <td>@string.Join(", ", W.Translations.ToList().Select(x => x.Value))</td>
+                    <td>@string.Join(", ", W.Translations?.Select(x => x.Value) ?? new List<string>())</td>
                     <td>
-                        <button class="btn btn-primary">Редагувати</button>
-                        <button class="btn btn-danger">Видалити</button>
+                        <a href="@($"dictionary/{Dictionary?.Id}/word-edit/{W.Id}")" class="btn btn-primary">Редагувати</a>
+                        <button class="btn btn-danger" @onclick="() => ConfirmDelete(W.Id)">Видалити</button>
                     </td>
                 </tr>
             }
@@ -50,7 +50,8 @@ else
     [Parameter]
     public int Id { get; set; }
 
-    private MyDictionary Dictionary;
+    private MyDictionary Dictionary = new();
+    private List<Word> filteredWords = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,7 +64,7 @@ else
 
         if (Dictionary != null)
         {
-            var wordsList = Dictionary.Words.ToList();
+            var wordsList = Dictionary.Words?.ToList() ?? new List<Word>();
 
             for (int i = 0; i < wordsList.Count; i++)
             {
@@ -71,6 +72,43 @@ else
             }
 
             Dictionary.Words = wordsList;
+            filteredWords = Dictionary.Words.ToList();
+        }
+    }
+
+    private async Task Delete(int id)
+    {
+        await WordHttpService.DeleteAsync(id);
+        await LoadDictionaries();
+    }
+
+    private async Task ConfirmDelete(int id)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { "Ви впевнені, що хочете видалити це слово?" });
+        if (confirmed)
+        {
+            await Delete(id);
+        }
+    }
+
+    private void UpdateFilteredWords(string searchTerm)
+    {
+        if (Dictionary?.Words == null)
+        {
+            filteredWords = new List<Word>();
+            return;
+        }
+
+        if (string.IsNullOrEmpty(searchTerm))
+        {
+            filteredWords = Dictionary.Words.ToList();
+        }
+        else
+        {
+            filteredWords = Dictionary.Words
+                .Where(x => x.Value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                            x.Translations.Any(t => t.Value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
         }
     }
 }

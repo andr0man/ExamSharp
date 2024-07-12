@@ -23,6 +23,11 @@ namespace Core.Context
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<Word>()
+                .HasOne(d => d.Dictionary)
+                .WithMany(w => w.Words)
+                .OnDelete(DeleteBehavior.Cascade);
+
             DataSeed.Seed(builder);
         }
     }

@@ -1,0 +1,147 @@
+﻿@page "/dictionary/{Id:int}/word-edit/{WId:int}"
+<h3>WordEdit</h3>
+
+<div class="my-3">
+    <div class="col-2"><label>Назва:</label></div>
+    <div class="col-3"><input @bind="editItem.Value" class="form-control" /></div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Переклад</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var T in Translations)
+        {
+            <tr>
+                <td>
+                    @if (editTranslation?.Id == T.Id)
+                    {
+                        <input @bind="editTranslation.Value" class="form-control" />
+                    }
+                    else
+                    {
+                        @T.Value
+                    }
+                </td>
+                <td>
+                    @if (editTranslation?.Id == T.Id)
+                    {
+                        <button class="btn btn-success" @onclick="UpdateTranslation">Зберегти</button>
+                        <button class="btn btn-secondary" @onclick="CancelEditTranslation">Скасувати</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary" @onclick="() => EditTranslation(T)">Редагувати</button>
+                        <button class="btn btn-danger" @onclick="() => RemoveTranslation(T)">Видалити</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (isAddingTranslation)
+{
+    <div class="mb-3 d-flex justify-content-center gap-2 align-items-center">
+        <input @bind="newTranslation.Value" class="form-control" placeholder="Новий переклад" />
+        <button class="btn btn-success" @onclick="SaveTranslation">Зберегти</button>
+        <button class="btn btn-secondary" @onclick="CancelAddTranslation">Скасувати</button>
+    </div>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="ShowAddTranslation">Додати Переклад</button>
+}
+
+<div class="my-3 float-end">
+    <button class="btn btn-primary" @onclick="UpdateWord">Зберегти</button>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    [Parameter]
+    public int WId { get; set; }
+
+    private Word editItem = new Word();
+    private Translation newTranslation = new Translation();
+    private Translation editTranslation;
+    private List<Translation> Translations = new List<Translation>();
+    private bool isAddingTranslation = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadWord();
+    }
+
+    private async Task LoadWord()
+    {
+        editItem = await WordHttpService.GetById(WId);
+        if (editItem.Translations != null)
+        {
+            Translations = editItem.Translations.ToList();
+        }
+    }
+
+    private async Task UpdateWord()
+    {
+        editItem.Translations = Translations.ToList();
+        await WordHttpService.UpdateAsync(editItem);
+        Navigation.NavigateTo($"dictionary/{Id}");
+    }
+
+    private void ShowAddTranslation()
+    {
+        isAddingTranslation = true;
+    }
+
+    private void SaveTranslation()
+    {
+        if (!string.IsNullOrEmpty(newTranslation.Value))
+        {
+            Translations.Add(newTranslation);
+            newTranslation = new Translation();
+        }
+        isAddingTranslation = false;
+    }
+
+    private void CancelAddTranslation()
+    {
+        newTranslation = new Translation();
+        isAddingTranslation = false;
+    }
+
+    private void EditTranslation(Translation translation)
+    {
+        editTranslation = new Translation
+            {
+                Id = translation.Id,
+                Value = translation.Value
+            };
+    }
+
+    private async Task UpdateTranslation()
+    {
+        var translation = Translations.FirstOrDefault(t => t.Id == editTranslation.Id);
+        if (translation != null)
+        {
+            translation.Value = editTranslation.Value;
+        }
+        editTranslation = null;
+    }
+
+    private void CancelEditTranslation()
+    {
+        editTranslation = null;
+    }
+
+    private async void RemoveTranslation(Translation translation)
+    {
+        Translations.Remove(translation);
+        await TranslationHttpService.DeleteAsync(translation.Id);
+    }
+}
