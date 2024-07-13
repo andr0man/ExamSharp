@@ -39,6 +39,7 @@ else
                     <td>
                         <a href="@($"dictionary/{Dictionary?.Id}/word-edit/{W.Id}")" class="btn btn-primary">Редагувати</a>
                         <button class="btn btn-danger" @onclick="() => ConfirmDelete(W.Id)">Видалити</button>
+                        <button class="btn btn-success" @onclick="() => downloandFile(W)">Завантажити</button>
                     </td>
                 </tr>
             }
@@ -110,5 +111,12 @@ else
                             x.Translations.Any(t => t.Value.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
         }
+    }
+    private async void downloandFile(Word val)
+    {
+        var fileName = val.Value;
+        var Content = $"Слово: {val.Value}\nПереклади: {string.Join(", ", val.Translations.Select(x => x.Value)) ?? "..."}";
+
+        await JSRuntime.InvokeAsync<object>("saveFile", fileName, Content);
     }
 }
